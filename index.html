@@ -1,60 +1,134 @@
-<!DOCTYPE html>
-<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Inventario EPP Pro</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<style>
-:root{--azul:#0058A3;--amarillo:#FFDA1A}body{background:#eef2f7}.sidebar{background:var(--azul);min-height:100vh;color:#fff}.menu-item{cursor:pointer;padding:12px;border-radius:8px}.menu-item:hover,.active{background:rgba(255,255,255,.15)}.card{border:0;border-radius:16px}.hidden{display:none}.dark{background:#1f2937;color:#fff}.dark .card{background:#374151;color:#fff}
-</style></head><body>
-<div class='container-fluid'><div class='row'>
-<div class='col-md-2 sidebar p-3'>
-<h3>IKEA Seguridad</h3><hr>
-<div class='menu-item active' onclick='showView("dashboard",this)'>📊 Dashboard</div>
-<div class='menu-item' onclick='showView("inventario",this)'>📦 Inventario</div>
-<div class='menu-item' onclick='showView("movimientos",this)'>📋 Movimientos</div>
-<button class='btn btn-warning w-100 mt-3' onclick='toggleDark()'>🌙 Modo oscuro</button>
-<button class='btn btn-light w-100 mt-2' onclick='exportCSV()'>📥 Exportar CSV</button>
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0058a3">
+  <title>Inventario EPP y Seguridad</title>
+  <style>
+    :root{--blue:#0058a3;--blue2:#003f78;--yellow:#ffda1a;--bg:#eef3f8;--surface:#fff;--text:#172033;--muted:#687386;--border:#dce4ec;--green:#138a4b;--red:#c73535;--orange:#b76500;--shadow:0 10px 30px rgba(15,42,68,.10)}
+    *{box-sizing:border-box} body{margin:0;font-family:Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text)}
+    button,input,select{font:inherit}.app{min-height:100vh;display:grid;grid-template-columns:260px 1fr}.sidebar{background:linear-gradient(180deg,var(--blue),var(--blue2));color:white;padding:22px 16px;position:sticky;top:0;height:100vh}.brand{font-size:25px;font-weight:800;line-height:1.15;padding:0 10px 22px;border-bottom:1px solid rgba(255,255,255,.22)}.brand small{display:block;font-size:13px;font-weight:500;margin-top:8px;color:#d9ebfb}.nav{display:grid;gap:8px;margin-top:22px}.nav-btn{border:0;background:transparent;color:white;text-align:left;padding:13px 14px;border-radius:10px;cursor:pointer;font-weight:650}.nav-btn:hover,.nav-btn.active{background:rgba(255,255,255,.17)}.side-actions{margin-top:26px;display:grid;gap:10px}.main{padding:28px;min-width:0}.page{display:none}.page.active{display:block}.page-head{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:22px}.page-head h1{margin:0;font-size:30px}.subtitle{color:var(--muted);margin-top:5px}.btn{border:0;border-radius:10px;padding:11px 16px;font-weight:700;cursor:pointer}.btn-blue{background:var(--blue);color:white}.btn-yellow{background:var(--yellow);color:#172033}.btn-light{background:white;color:var(--text)}.btn-red{background:#ffe3e3;color:#931d1d}.btn-green{background:#dff7e9;color:#0d6e3a}.btn:disabled{opacity:.55;cursor:not-allowed}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:22px}.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow)}.stat{padding:20px}.stat-label{color:var(--muted);font-size:14px;font-weight:650}.stat-value{font-size:32px;font-weight:800;margin-top:7px}.panel{padding:20px;margin-bottom:20px}.panel h2{margin:0 0 15px;font-size:20px}.toolbar{display:grid;grid-template-columns:1fr 240px auto;gap:12px;margin-bottom:18px}.field{display:grid;gap:6px}.field label{font-size:13px;font-weight:700;color:var(--muted)}input,select{width:100%;padding:11px 12px;border:1px solid #cfd9e3;border-radius:9px;background:white;color:#172033;outline:none}input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,88,163,.12)}.product-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.product{padding:18px;display:flex;flex-direction:column;gap:11px}.product-top{display:flex;justify-content:space-between;gap:10px}.code{font-size:12px;color:var(--muted);font-weight:700}.badge{font-size:12px;font-weight:750;border-radius:999px;padding:5px 9px;background:#e2f0fb;color:#064b80}.product h3{margin:0;font-size:18px}.stock-row{display:flex;justify-content:space-between;align-items:end}.stock{font-size:27px;font-weight:850}.status{font-size:12px;font-weight:800;border-radius:999px;padding:5px 9px}.ok{background:#dff7e9;color:#0b6a37}.low{background:#fff0c7;color:#8a5200}.zero{background:#ffe0e0;color:#a21d1d}.product-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:auto}.product-actions .wide{grid-column:1/-1}.empty{text-align:center;color:var(--muted);padding:42px}.table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse}.table th,.table td{text-align:left;padding:13px 10px;border-bottom:1px solid var(--border);white-space:nowrap}.table th{font-size:13px;color:var(--muted)}.movement-in{color:var(--green);font-weight:800}.movement-out{color:var(--orange);font-weight:800}.modal-backdrop{position:fixed;inset:0;background:rgba(9,24,39,.58);display:none;align-items:center;justify-content:center;padding:18px;z-index:20}.modal-backdrop.open{display:flex}.modal{width:min(560px,100%);background:white;border-radius:18px;padding:22px;box-shadow:0 30px 70px rgba(0,0,0,.28)}.modal h2{margin:0 0 18px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.full{grid-column:1/-1}.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}.notice{position:fixed;right:20px;bottom:20px;max-width:380px;background:#172033;color:#fff;padding:13px 17px;border-radius:10px;box-shadow:var(--shadow);display:none;z-index:30}.notice.show{display:block}.dark{--bg:#131b26;--surface:#202b38;--text:#f3f6fa;--muted:#abb8c7;--border:#354353}.dark input,.dark select,.dark .modal{background:#202b38;color:#f3f6fa;border-color:#485669}.dark .btn-light{background:#2c3948;color:white}
+    @media(max-width:1000px){.stats{grid-template-columns:repeat(2,1fr)}.product-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:760px){.app{grid-template-columns:1fr}.sidebar{position:static;height:auto}.nav{grid-template-columns:repeat(3,1fr)}.nav-btn{text-align:center;padding:10px 5px}.side-actions{grid-template-columns:1fr 1fr;margin-top:14px}.main{padding:18px}.toolbar{grid-template-columns:1fr}.product-grid{grid-template-columns:1fr}.page-head{align-items:flex-start;flex-direction:column}.form-grid{grid-template-columns:1fr}.full{grid-column:auto}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">Inventario Seguridad<small>EPP y elementos de seguridad</small></div>
+    <nav class="nav" aria-label="Navegación principal">
+      <button class="nav-btn active" data-page="dashboard">📊 Dashboard</button>
+      <button class="nav-btn" data-page="inventory">📦 Inventario</button>
+      <button class="nav-btn" data-page="movements">📋 Movimientos</button>
+    </nav>
+    <div class="side-actions">
+      <button id="darkBtn" class="btn btn-yellow">🌙 Modo oscuro</button>
+      <button id="exportBtn" class="btn btn-light">📥 Exportar CSV</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <section id="dashboard" class="page active">
+      <div class="page-head"><div><h1>Dashboard</h1><div class="subtitle">Resumen actualizado del inventario</div></div><button class="btn btn-blue go-inventory">Gestionar inventario</button></div>
+      <div class="stats">
+        <article class="card stat"><div class="stat-label">Productos</div><div id="statProducts" class="stat-value">0</div></article>
+        <article class="card stat"><div class="stat-label">Stock total</div><div id="statStock" class="stat-value">0</div></article>
+        <article class="card stat"><div class="stat-label">Stock crítico</div><div id="statCritical" class="stat-value">0</div></article>
+        <article class="card stat"><div class="stat-label">Movimientos</div><div id="statMovements" class="stat-value">0</div></article>
+      </div>
+      <article class="card panel"><h2>Productos con atención requerida</h2><div id="criticalList"></div></article>
+      <article class="card panel"><h2>Últimos movimientos</h2><div id="recentMovements" class="table-wrap"></div></article>
+    </section>
+
+    <section id="inventory" class="page">
+      <div class="page-head"><div><h1>Inventario</h1><div class="subtitle">Agrega productos y registra ingresos o salidas</div></div><button id="newProductBtn" class="btn btn-blue">＋ Nuevo producto</button></div>
+      <div class="toolbar">
+        <input id="searchInput" type="search" placeholder="Buscar por nombre o código...">
+        <select id="categoryFilter"><option value="">Todas las categorías</option><option value="EPP">EPP</option><option value="Elementos de Seguridad">Elementos de Seguridad</option></select>
+        <button id="resetFiltersBtn" class="btn btn-light">Limpiar filtros</button>
+      </div>
+      <div id="productGrid" class="product-grid"></div>
+    </section>
+
+    <section id="movements" class="page">
+      <div class="page-head"><div><h1>Movimientos</h1><div class="subtitle">Historial de ingresos y salidas</div></div><button id="clearMovementsBtn" class="btn btn-red">Limpiar historial</button></div>
+      <article class="card panel"><div id="movementsTable" class="table-wrap"></div></article>
+    </section>
+  </main>
 </div>
-<div class='col-md-10 p-4'>
-<div id='dashboard'>
-<h2>Dashboard</h2><div class='row'>
-<div class='col'><div class='card p-3'><h6>Productos</h6><h2 id='totalProd'></h2></div></div>
-<div class='col'><div class='card p-3'><h6>Stock Total</h6><h2 id='stockTot'></h2></div></div>
-<div class='col'><div class='card p-3'><h6>Críticos</h6><h2 id='criticos'></h2></div></div>
-</div></div>
-<div id='inventario' class='hidden'>
-<h2>Inventario</h2>
-<div class='card p-3 mb-3'><div class='row'>
-<div class='col'><input id='cod' class='form-control' placeholder='Código'></div>
-<div class='col'><select id='cat' class='form-select'><option>EPP</option><option>Elementos de Seguridad</option></select></div>
-<div class='col'><input id='nom' class='form-control' placeholder='Producto'></div>
-<div class='col'><input id='stk' type='number' class='form-control' placeholder='Stock'></div>
-<div class='col'><input id='min' type='number' class='form-control' placeholder='Mínimo'></div>
-<div class='col'><button class='btn btn-primary' onclick='agregarProducto()'>Agregar</button></div>
-</div></div>
-<input id='buscar' class='form-control mb-3' placeholder='Buscar...' onkeyup='render()'>
-<div class='row' id='productos'></div>
+
+<div id="productModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="productModalTitle">
+  <form id="productForm" class="modal">
+    <h2 id="productModalTitle">Nuevo producto</h2>
+    <input id="editProductId" type="hidden">
+    <div class="form-grid">
+      <div class="field"><label for="productCode">Código</label><input id="productCode" required maxlength="20" placeholder="Ej. EPP011"></div>
+      <div class="field"><label for="productCategory">Categoría</label><select id="productCategory" required><option value="EPP">EPP</option><option value="Elementos de Seguridad">Elementos de Seguridad</option></select></div>
+      <div class="field full"><label for="productName">Nombre del producto</label><input id="productName" required maxlength="80" placeholder="Ej. Mascarilla de protección"></div>
+      <div class="field"><label for="productStock">Stock inicial</label><input id="productStock" type="number" required min="0" step="1" value="0"></div>
+      <div class="field"><label for="productMinimum">Stock mínimo</label><input id="productMinimum" type="number" required min="0" step="1" value="5"></div>
+    </div>
+    <div class="modal-actions"><button type="button" class="btn btn-light modal-close">Cancelar</button><button type="submit" class="btn btn-blue">Guardar producto</button></div>
+  </form>
 </div>
-<div id='movimientos' class='hidden'>
-<h2>Movimientos</h2>
-<table class='table'><thead><tr><th>Fecha</th><th>Producto</th><th>Tipo</th><th>Cantidad</th><th>Motivo</th></tr></thead><tbody id='historial'></tbody></table>
-</div></div></div></div>
+
+<div id="movementModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="movementModalTitle">
+  <form id="movementForm" class="modal">
+    <h2 id="movementModalTitle">Registrar movimiento</h2>
+    <input id="movementProductId" type="hidden"><input id="movementType" type="hidden">
+    <div class="form-grid">
+      <div class="field full"><label>Producto</label><input id="movementProductName" disabled></div>
+      <div class="field"><label for="movementQuantity">Cantidad</label><input id="movementQuantity" type="number" required min="1" step="1" value="1"></div>
+      <div class="field"><label for="movementReason">Motivo</label><select id="movementReason" required></select></div>
+      <div class="field full"><label for="movementNote">Observación opcional</label><input id="movementNote" maxlength="120" placeholder="Detalle adicional"></div>
+    </div>
+    <div class="modal-actions"><button type="button" class="btn btn-light modal-close">Cancelar</button><button type="submit" class="btn btn-blue">Registrar</button></div>
+  </form>
+</div>
+<div id="notice" class="notice"></div>
+
 <script>
-let productos=JSON.parse(localStorage.getItem('productos')||'null')||[
-{c:'EPP001',cat:'EPP',n:'Casco de seguridad',s:20,m:5},
-{c:'EPP002',cat:'EPP',n:'Guantes anticorte',s:20,m:5},
-{c:'SEG001',cat:'Elementos de Seguridad',n:'Cono de seguridad',s:10,m:3}
-];
-let movimientos=JSON.parse(localStorage.getItem('movimientos')||'[]');
-function save(){localStorage.setItem('productos',JSON.stringify(productos));localStorage.setItem('movimientos',JSON.stringify(movimientos));}
-function showView(id,el){document.querySelectorAll('#dashboard,#inventario,#movimientos').forEach(x=>x.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');document.querySelectorAll('.menu-item').forEach(x=>x.classList.remove('active'));el.classList.add('active');}
-function agregarProducto(){const p={c:cod.value,cat:cat.value,n:nom.value,s:Number(stk.value),m:Number(min.value)};if(!p.c||!p.n)return alert('Complete Código y Producto');productos.push(p);save();render();alert('Producto agregado');}
-function mover(i,t){let c=Number(prompt('Cantidad'));if(!c)return;let motivo=prompt('Motivo');if(t==='Salida'&&c>productos[i].s)return alert('Stock insuficiente');t==='Ingreso'?productos[i].s+=c:productos[i].s-=c;movimientos.unshift({f:new Date().toLocaleString(),p:productos[i].n,t,c,m:motivo});save();render();}
-function render(){let b=(document.getElementById('buscar')?.value||'').toLowerCase();let cont=document.getElementById('productos');cont.innerHTML='';productos.filter(x=>x.n.toLowerCase().includes(b)).forEach((x,i)=>{cont.innerHTML+=`<div class='col-md-4 mb-3'><div class='card p-3'><b>${x.n}</b><small>${x.c} | ${x.cat}</small><p>Stock: ${x.s} | Min: ${x.m}</p><button class='btn btn-success btn-sm' onclick='mover(${i},"Ingreso")'>Ingreso</button> <button class='btn btn-warning btn-sm' onclick='mover(${i},"Salida")'>Salida</button></div></div>`});
- document.getElementById('totalProd').innerText=productos.length;document.getElementById('stockTot').innerText=productos.reduce((a,b)=>a+b.s,0);document.getElementById('criticos').innerText=productos.filter(x=>x.s<=x.m).length;
- document.getElementById('historial').innerHTML=movimientos.map(x=>`<tr><td>${x.f}</td><td>${x.p}</td><td>${x.t}</td><td>${x.c}</td><td>${x.m}</td></tr>`).join('');}
-function toggleDark(){document.body.classList.toggle('dark')}
-function exportCSV(){let csv='Codigo,Categoria,Producto,Stock,Minimo
-'+productos.map(x=>`${x.c},${x.cat},${x.n},${x.s},${x.m}`).join('
-');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv]));a.download='inventario.csv';a.click();}
-render();
-</script></body></html>
+(function(){
+  'use strict';
+  const PRODUCTS_KEY='inventarioSeguridadProductosV4';
+  const MOVEMENTS_KEY='inventarioSeguridadMovimientosV4';
+  const THEME_KEY='inventarioSeguridadTemaV4';
+  const defaults=[
+    ['EPP001','EPP','Casco de seguridad',20,5],['EPP002','EPP','Chaleco reflectante',20,5],['EPP003','EPP','Guantes anticorte',20,5],['EPP004','EPP','Guantes de nitrilo',20,5],['EPP005','EPP','Lentes de seguridad',20,5],['EPP006','EPP','Zapatos de seguridad',20,5],['EPP007','EPP','Arnés de seguridad',20,5],['EPP008','EPP','Protector auditivo',20,5],['EPP009','EPP','Guante de cabretilla',20,5],['EPP010','EPP','Barbiquejo',20,5],
+    ['SEG001','Elementos de Seguridad','Cono de seguridad',10,3],['SEG002','Elementos de Seguridad','Cinta de peligro',10,3],['SEG003','Elementos de Seguridad','Botiquín',10,3],['SEG004','Elementos de Seguridad','Linterna',10,3],['SEG005','Elementos de Seguridad','Barreras divisorias',10,3],['SEG006','Elementos de Seguridad','Cinta doble contacto',10,3],['SEG007','Elementos de Seguridad','Cinta delimitadora',10,3],['SEG008','Elementos de Seguridad','Cuñas',10,3],['SEG009','Elementos de Seguridad','Cuchillo microdentado',10,3]
+  ].map((x,i)=>({id:'p'+(i+1),code:x[0],category:x[1],name:x[2],stock:x[3],minimum:x[4]}));
+  const byId=id=>document.getElementById(id);
+  function safeRead(key,fallback){try{const value=localStorage.getItem(key);return value?JSON.parse(value):fallback}catch(error){console.warn('No se pudo leer localStorage',error);return fallback}}
+  let products=safeRead(PRODUCTS_KEY,null); if(!Array.isArray(products)||!products.length)products=defaults;
+  let movements=safeRead(MOVEMENTS_KEY,[]); if(!Array.isArray(movements))movements=[];
+  function save(){try{localStorage.setItem(PRODUCTS_KEY,JSON.stringify(products));localStorage.setItem(MOVEMENTS_KEY,JSON.stringify(movements))}catch(error){notify('No fue posible guardar en este navegador. Abre la app desde GitHub Pages.')}}
+  function escapeHtml(value){return String(value??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+  function notify(message){const n=byId('notice');n.textContent=message;n.classList.add('show');clearTimeout(notify.timer);notify.timer=setTimeout(()=>n.classList.remove('show'),2800)}
+  function goTo(page){document.querySelectorAll('.page').forEach(el=>el.classList.toggle('active',el.id===page));document.querySelectorAll('.nav-btn').forEach(el=>el.classList.toggle('active',el.dataset.page===page));window.scrollTo({top:0,behavior:'smooth'})}
+  function statusFor(p){if(p.stock===0)return['Sin stock','zero'];if(p.stock<=p.minimum)return['Crítico','low'];return['Disponible','ok']}
+  function renderProducts(){const term=byId('searchInput').value.trim().toLowerCase();const category=byId('categoryFilter').value;const filtered=products.filter(p=>(!category||p.category===category)&&(!term||p.name.toLowerCase().includes(term)||p.code.toLowerCase().includes(term)));const grid=byId('productGrid');if(!filtered.length){grid.innerHTML='<div class="card empty">No se encontraron productos.</div>';return}grid.innerHTML=filtered.map(p=>{const st=statusFor(p);return `<article class="card product"><div class="product-top"><span class="code">${escapeHtml(p.code)}</span><span class="badge">${escapeHtml(p.category)}</span></div><h3>${escapeHtml(p.name)}</h3><div class="stock-row"><div><div class="stat-label">Stock actual</div><div class="stock">${p.stock}</div></div><span class="status ${st[1]}">${st[0]}</span></div><div class="stat-label">Stock mínimo: ${p.minimum}</div><div class="product-actions"><button class="btn btn-green" data-action="in" data-id="${p.id}">＋ Ingreso</button><button class="btn btn-yellow" data-action="out" data-id="${p.id}">－ Salida</button><button class="btn btn-light" data-action="edit" data-id="${p.id}">Editar</button><button class="btn btn-red" data-action="delete" data-id="${p.id}">Eliminar</button></div></article>`}).join('')}
+  function movementTable(rows){if(!rows.length)return'<div class="empty">Aún no hay movimientos registrados.</div>';return `<table class="table"><thead><tr><th>Fecha</th><th>Producto</th><th>Tipo</th><th>Cantidad</th><th>Motivo</th><th>Observación</th></tr></thead><tbody>${rows.map(m=>`<tr><td>${escapeHtml(m.date)}</td><td>${escapeHtml(m.product)}</td><td class="${m.type==='Ingreso'?'movement-in':'movement-out'}">${escapeHtml(m.type)}</td><td>${m.quantity}</td><td>${escapeHtml(m.reason)}</td><td>${escapeHtml(m.note||'')}</td></tr>`).join('')}</tbody></table>`}
+  function renderAll(){byId('statProducts').textContent=products.length;byId('statStock').textContent=products.reduce((a,p)=>a+p.stock,0);byId('statCritical').textContent=products.filter(p=>p.stock<=p.minimum).length;byId('statMovements').textContent=movements.length;const critical=products.filter(p=>p.stock<=p.minimum);byId('criticalList').innerHTML=critical.length?critical.map(p=>`<div style="padding:10px 0;border-bottom:1px solid var(--border)"><b>${escapeHtml(p.name)}</b> · Stock ${p.stock} / mínimo ${p.minimum}</div>`).join(''):'<div class="empty">No hay productos en nivel crítico.</div>';byId('recentMovements').innerHTML=movementTable(movements.slice(0,5));byId('movementsTable').innerHTML=movementTable(movements);renderProducts()}
+  function openModal(id){byId(id).classList.add('open')}
+  function closeModals(){document.querySelectorAll('.modal-backdrop').forEach(m=>m.classList.remove('open'))}
+  function openProduct(product){byId('productForm').reset();byId('editProductId').value=product?product.id:'';byId('productModalTitle').textContent=product?'Editar producto':'Nuevo producto';if(product){byId('productCode').value=product.code;byId('productCategory').value=product.category;byId('productName').value=product.name;byId('productStock').value=product.stock;byId('productMinimum').value=product.minimum}else{byId('productStock').value=0;byId('productMinimum').value=5}openModal('productModal')}
+  function openMovement(product,type){byId('movementForm').reset();byId('movementProductId').value=product.id;byId('movementType').value=type;byId('movementProductName').value=`${product.code} · ${product.name}`;byId('movementModalTitle').textContent=`Registrar ${type.toLowerCase()}`;byId('movementQuantity').value=1;const reasons=type==='Ingreso'?['Compra','Reposición','Devolución','Ajuste de inventario','Otro']:['Entrega','Pérdida','Deterioro','Ajuste de inventario','Otro'];byId('movementReason').innerHTML=reasons.map(r=>`<option value="${r}">${r}</option>`).join('');openModal('movementModal')}
+  document.querySelectorAll('.nav-btn').forEach(btn=>btn.addEventListener('click',()=>goTo(btn.dataset.page)));
+  document.querySelectorAll('.go-inventory').forEach(btn=>btn.addEventListener('click',()=>goTo('inventory')));
+  byId('newProductBtn').addEventListener('click',()=>openProduct(null));
+  byId('searchInput').addEventListener('input',renderProducts);byId('categoryFilter').addEventListener('change',renderProducts);
+  byId('resetFiltersBtn').addEventListener('click',()=>{byId('searchInput').value='';byId('categoryFilter').value='';renderProducts()});
+  document.querySelectorAll('.modal-close').forEach(btn=>btn.addEventListener('click',closeModals));document.querySelectorAll('.modal-backdrop').forEach(back=>back.addEventListener('click',e=>{if(e.target===back)closeModals()}));
+  byId('productGrid').addEventListener('click',e=>{const btn=e.target.closest('button[data-action]');if(!btn)return;const product=products.find(p=>p.id===btn.dataset.id);if(!product)return;if(btn.dataset.action==='in')openMovement(product,'Ingreso');if(btn.dataset.action==='out')openMovement(product,'Salida');if(btn.dataset.action==='edit')openProduct(product);if(btn.dataset.action==='delete'&&confirm(`¿Eliminar ${product.name}?`)){products=products.filter(p=>p.id!==product.id);save();renderAll();notify('Producto eliminado')}});
+  byId('productForm').addEventListener('submit',e=>{e.preventDefault();const id=byId('editProductId').value;const code=byId('productCode').value.trim().toUpperCase();const name=byId('productName').value.trim();const category=byId('productCategory').value;const stock=Number(byId('productStock').value);const minimum=Number(byId('productMinimum').value);if(!code||!name||!Number.isInteger(stock)||stock<0||!Number.isInteger(minimum)||minimum<0){notify('Revisa los datos ingresados.');return}if(products.some(p=>p.code.toLowerCase()===code.toLowerCase()&&p.id!==id)){notify('El código ya está registrado.');return}if(id){const p=products.find(x=>x.id===id);Object.assign(p,{code,category,name,stock,minimum})}else{products.push({id:'p'+Date.now(),code,category,name,stock,minimum})}save();closeModals();renderAll();notify(id?'Producto actualizado':'Producto agregado correctamente')});
+  byId('movementForm').addEventListener('submit',e=>{e.preventDefault();const p=products.find(x=>x.id===byId('movementProductId').value);const type=byId('movementType').value;const quantity=Number(byId('movementQuantity').value);if(!p||!Number.isInteger(quantity)||quantity<=0){notify('Ingresa una cantidad válida.');return}if(type==='Salida'&&quantity>p.stock){notify(`Stock insuficiente. Disponible: ${p.stock}`);return}p.stock+=type==='Ingreso'?quantity:-quantity;movements.unshift({id:'m'+Date.now(),date:new Date().toLocaleString('es-CL'),product:p.name,code:p.code,type,quantity,reason:byId('movementReason').value,note:byId('movementNote').value.trim()});save();closeModals();renderAll();notify(`${type} registrada correctamente`)});
+  byId('clearMovementsBtn').addEventListener('click',()=>{if(confirm('¿Eliminar todo el historial de movimientos?')){movements=[];save();renderAll();notify('Historial eliminado')}});
+  byId('darkBtn').addEventListener('click',()=>{document.body.classList.toggle('dark');try{localStorage.setItem(THEME_KEY,document.body.classList.contains('dark')?'dark':'light')}catch(e){}});
+  byId('exportBtn').addEventListener('click',()=>{const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';const rows=[['Código','Categoría','Producto','Stock','Stock mínimo'],...products.map(p=>[p.code,p.category,p.name,p.stock,p.minimum])];const csv='\ufeff'+rows.map(r=>r.map(q).join(';')).join('\n');const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='inventario-epp.csv';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url)});
+  if(safeRead(THEME_KEY,'light')==='dark')document.body.classList.add('dark');
+  renderAll();
+})();
+</script>
+</body>
+</html>
